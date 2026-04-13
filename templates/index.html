@@ -143,7 +143,7 @@
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 12px;
       }
-      input, textarea, .out {
+      input, textarea, .out, .report {
         width: 100%;
         border: 1px solid var(--line);
         border-radius: 14px;
@@ -194,6 +194,22 @@
       }
       .status { margin: 12px 0; color: var(--ink-soft); }
       .danger { color: var(--danger); }
+      .report {
+        min-height: 140px;
+        line-height: 1.5;
+      }
+      .report h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      .report .section-title {
+        margin-top: 10px;
+        font-weight: 700;
+      }
+      .report ul {
+        margin: 6px 0 0 18px;
+        padding: 0;
+      }
       .out {
         min-height: 170px;
         max-height: 460px;
@@ -241,7 +257,7 @@
 
     <section class="panel" id="analyzer">
       <h2>Intent Safety Receipt</h2>
-      <p class="sub">Опиши, що хочеш зробити on-chain, і отримай risk score + AI пояснення.</p>
+      <p class="sub">Describe your planned on-chain action to get a risk score and clear AI safety guidance.</p>
 
       <div class="chip-row">
         <button class="chip" data-intent="Swap 20% ETH to USDC using a well-known DEX.">Swap</button>
@@ -251,7 +267,7 @@
 
       <div class="grid" style="margin-top: 10px;">
         <input id="chain" value="Base Sepolia" placeholder="Chain" />
-        <textarea id="intent" placeholder="Example: Swap 20% ETH to USDC and add liquidity to a new pool."></textarea>
+        <textarea id="intent" placeholder="Example: Swap 20% ETH to USDC and add liquidity to a new pool.">Swap 20% ETH to USDC and add liquidity to a new pool.</textarea>
       </div>
       <div class="grid">
         <textarea id="context" placeholder="Optional context: protocol name, token address, timeframe, assumptions."></textarea>
@@ -284,7 +300,11 @@
       </div>
 
       <div class="status" id="status">Status: idle</div>
-      <div class="out" id="out">Output will appear here...</div>
+      <div class="report" id="report">Safety receipt will appear here...</div>
+      <details class="advanced">
+        <summary>Raw JSON</summary>
+        <div class="out" id="out">Output will appear here...</div>
+      </details>
       <div class="disclaimer">Not financial advice. Always verify spender/contract before signing.</div>
     </section>
 
@@ -295,6 +315,7 @@
     <script>
       const runBtn = document.getElementById("runBtn");
       const statusEl = document.getElementById("status");
+      const reportEl = document.getElementById("report");
       const outEl = document.getElementById("out");
       const chainEl = document.getElementById("chain");
       const walletEl = document.getElementById("wallet");
@@ -309,6 +330,32 @@
         try { return JSON.stringify(v, null, 2); }
         catch { return String(v); }
       }
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+      function renderList(items) {
+        if (!Array.isArray(items) || items.length === 0) return "<div>-</div>";
+        return `<ul>${items.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+      }
+      function renderReport(result) {
+        const ai = (result && result.ai_report) ? String(result.ai_report) : "";
+        return `
+          <h3>Safety Receipt</h3>
+          <div><b>Risk tier:</b> ${escapeHtml(String(result.risk_tier || "-").toUpperCase())}</div>
+          <div><b>Risk score:</b> ${escapeHtml(String(result.risk_score ?? "-"))} / 100</div>
+          <div class="section-title">Top Risk Factors</div>
+          ${renderList(result.top_factors)}
+          <div class="section-title">Do Not Sign</div>
+          ${renderList(result.do_not_sign_list)}
+          <div class="section-title">Safer Alternative Plan</div>
+          ${renderList(result.safer_plan)}
+          <div class="section-title">AI Explanation</div>
+          <div>${escapeHtml(ai).replaceAll("\n", "<br />") || "-"}</div>
+        `;
+      }
 
       async function run() {
         const intent = intentEl.value.trim();
@@ -317,7 +364,9 @@
         const context = contextEl.value.trim();
 
         if (!intent) {
-          statusEl.innerHTML = '<span class="danger">Status: intent is required</span>';
+          statusEl.innerHTML = '<span class="danger">Status: add your intent first</span>';
+          reportEl.textContent = "Write what you want to do on-chain, then click Generate Safety Receipt.";
+          outEl.textContent = "Tip: include protocol, token, and amount for better analysis.";
           return;
         }
 
@@ -326,6 +375,7 @@
         kpiRiskEl.textContent = "-";
         kpiTierEl.textContent = "-";
         kpiFlagEl.textContent = "-";
+        reportEl.textContent = "Generating user-friendly safety receipt...";
         outEl.textContent = "Running risk engine...";
 
         try {
@@ -337,6 +387,7 @@
           const data = await r.json();
           if (!r.ok) {
             statusEl.innerHTML = '<span class="danger">Status: failed</span>';
+            reportEl.textContent = "Failed to generate safety receipt.";
             outEl.textContent = data.error || data.details || "Unknown error";
             return;
           }
@@ -348,9 +399,11 @@
           statusEl.textContent = provider.startsWith("stable_fallback")
             ? `Status: fallback mode (${provider})`
             : `Status: success via ${provider}`;
+          reportEl.innerHTML = renderReport(result);
           outEl.textContent = pretty(result);
         } catch (e) {
           statusEl.innerHTML = '<span class="danger">Status: network error</span>';
+          reportEl.textContent = "Network error while generating safety receipt.";
           outEl.textContent = e.message;
         } finally {
           runBtn.disabled = false;
