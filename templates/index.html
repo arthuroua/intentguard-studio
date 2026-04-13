@@ -55,7 +55,7 @@
         display: flex;
         gap: 8px;
       }
-      .nav-pill a, .nav-pill button {
+      .nav-pill a {
         border: 0;
         background: transparent;
         color: var(--ink-soft);
@@ -73,7 +73,6 @@
         max-width: 1180px;
         margin: 0 auto;
         padding: 10px 24px 34px;
-        display: block;
       }
       h1 {
         margin: 0 0 14px;
@@ -106,6 +105,21 @@
         background: var(--cta);
         color: var(--cta-text);
       }
+      .chip-row {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.75);
+        color: var(--ink-soft);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font: inherit;
+        cursor: pointer;
+      }
       .panel {
         max-width: 1180px;
         margin: 8px auto 30px;
@@ -129,7 +143,7 @@
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 12px;
       }
-      input, textarea, select, .out {
+      input, textarea, .out {
         width: 100%;
         border: 1px solid var(--line);
         border-radius: 14px;
@@ -139,11 +153,44 @@
         color: var(--ink);
       }
       textarea { min-height: 120px; resize: vertical; }
+      details.advanced {
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 8px 10px;
+      }
+      details.advanced summary {
+        cursor: pointer;
+        color: var(--ink-soft);
+      }
       .run {
         margin-top: 12px;
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+      }
+      .kpi-grid {
+        margin: 12px 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+      }
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 12px;
+      }
+      .kpi .label {
+        font-size: 12px;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+      .kpi .value {
+        font-weight: 700;
+        font-size: 22px;
+        line-height: 1;
       }
       .status { margin: 12px 0; color: var(--ink-soft); }
       .danger { color: var(--danger); }
@@ -155,16 +202,16 @@
         word-break: break-word;
         font-family: "IBM Plex Mono", monospace;
       }
+      .disclaimer {
+        margin-top: 8px;
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
       .footer {
         text-align: center;
         color: rgba(9, 54, 76, 0.78);
         font-size: 12px;
         margin: 12px 0 26px;
-      }
-      @media (max-width: 900px) {
-        .hero {
-          padding-top: 2px;
-        }
       }
     </style>
   </head>
@@ -176,7 +223,6 @@
       </a>
       <nav class="nav-pill">
         <a href="#analyzer">Intent Analyzer</a>
-        <a href="/health" target="_blank" rel="noopener noreferrer">Health</a>
         <a class="primary" href="https://hub.opengradient.ai" target="_blank" rel="noopener noreferrer">Explore Models</a>
       </nav>
     </header>
@@ -189,7 +235,6 @@
         </p>
         <div class="hero-actions">
           <a class="btn primary" href="#analyzer">Enter Intent Portal</a>
-          <a class="btn" href="https://www.opengradient.ai" target="_blank" rel="noopener noreferrer">OpenGradient</a>
         </div>
       </div>
     </section>
@@ -197,19 +242,50 @@
     <section class="panel" id="analyzer">
       <h2>Intent Safety Receipt</h2>
       <p class="sub">Опиши, що хочеш зробити on-chain, і отримай risk score + AI пояснення.</p>
-      <div class="grid">
-        <input id="chain" value="Base Sepolia" placeholder="Chain" />
-        <input id="wallet" placeholder="Wallet address (optional)" />
+
+      <div class="chip-row">
+        <button class="chip" data-intent="Swap 20% ETH to USDC using a well-known DEX.">Swap</button>
+        <button class="chip" data-intent="Bridge 15% ETH from Base to another network and swap to stablecoin.">Bridge</button>
+        <button class="chip" data-intent="Add liquidity to a new token/USDC pool with small test amount first.">Add LP</button>
       </div>
+
       <div class="grid" style="margin-top: 10px;">
+        <input id="chain" value="Base Sepolia" placeholder="Chain" />
         <textarea id="intent" placeholder="Example: Swap 20% ETH to USDC and add liquidity to a new pool."></textarea>
+      </div>
+      <div class="grid">
         <textarea id="context" placeholder="Optional context: protocol name, token address, timeframe, assumptions."></textarea>
       </div>
+
+      <details class="advanced">
+        <summary>Advanced (optional)</summary>
+        <div class="grid" style="margin-top: 10px;">
+          <input id="wallet" placeholder="Wallet address (optional)" />
+        </div>
+      </details>
+
       <div class="run">
         <button class="btn primary" id="runBtn">Generate Safety Receipt</button>
       </div>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="label">Risk Score</div>
+          <div class="value" id="kpiRisk">-</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Risk Tier</div>
+          <div class="value" id="kpiTier">-</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Top Red Flag</div>
+          <div class="value" id="kpiFlag" style="font-size:14px; line-height:1.3;">-</div>
+        </div>
+      </div>
+
       <div class="status" id="status">Status: idle</div>
       <div class="out" id="out">Output will appear here...</div>
+      <div class="disclaimer">Not financial advice. Always verify spender/contract before signing.</div>
     </section>
 
     <div class="footer">
@@ -224,6 +300,10 @@
       const walletEl = document.getElementById("wallet");
       const intentEl = document.getElementById("intent");
       const contextEl = document.getElementById("context");
+      const kpiRiskEl = document.getElementById("kpiRisk");
+      const kpiTierEl = document.getElementById("kpiTier");
+      const kpiFlagEl = document.getElementById("kpiFlag");
+      const chips = Array.from(document.querySelectorAll(".chip"));
 
       function pretty(v) {
         try { return JSON.stringify(v, null, 2); }
@@ -243,6 +323,9 @@
 
         runBtn.disabled = true;
         statusEl.textContent = "Status: analyzing intent...";
+        kpiRiskEl.textContent = "-";
+        kpiTierEl.textContent = "-";
+        kpiFlagEl.textContent = "-";
         outEl.textContent = "Running risk engine...";
 
         try {
@@ -257,8 +340,15 @@
             outEl.textContent = data.error || data.details || "Unknown error";
             return;
           }
-          statusEl.textContent = `Status: success via ${data.provider}`;
-          outEl.textContent = pretty(data.result);
+          const provider = data.provider || "unknown";
+          const result = data.result || {};
+          kpiRiskEl.textContent = String(result.risk_score ?? "-");
+          kpiTierEl.textContent = String(result.risk_tier ?? "-").toUpperCase();
+          kpiFlagEl.textContent = (result.top_factors && result.top_factors[0]) ? result.top_factors[0] : "-";
+          statusEl.textContent = provider.startsWith("stable_fallback")
+            ? `Status: fallback mode (${provider})`
+            : `Status: success via ${provider}`;
+          outEl.textContent = pretty(result);
         } catch (e) {
           statusEl.innerHTML = '<span class="danger">Status: network error</span>';
           outEl.textContent = e.message;
@@ -268,6 +358,12 @@
       }
 
       runBtn.addEventListener("click", () => run().catch(console.error));
+      chips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          intentEl.value = chip.getAttribute("data-intent") || "";
+          intentEl.focus();
+        });
+      });
     </script>
   </body>
 </html>
