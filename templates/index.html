@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IntentGuard OG Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #92e6ef;
+        --bg-2: #82d7e6;
+        --ink: #0a3a55;
+        --ink-soft: #1f5671;
+        --panel: rgba(245, 255, 255, 0.72);
+        --line: rgba(12, 83, 110, 0.2);
+        --cta: #0f3c56;
+        --cta-text: #eafcff;
+        --danger: #b31748;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Space Grotesk", sans-serif;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 73% 38%, rgba(255, 255, 255, 0.44), transparent 24%),
+          radial-gradient(circle at 80% 25%, rgba(0, 149, 205, 0.24), transparent 36%),
+          linear-gradient(140deg, var(--bg), var(--bg-2));
+      }
+      .topbar {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 22px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--ink);
+      }
+      .brand img { height: 38px; width: auto; }
+      .brand b { font-size: 26px; letter-spacing: -0.02em; }
+      .nav-pill {
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: 999px;
+        padding: 8px;
+        display: flex;
+        gap: 8px;
+      }
+      .nav-pill a, .nav-pill button {
+        border: 0;
+        background: transparent;
+        color: var(--ink-soft);
+        text-decoration: none;
+        font: inherit;
+        padding: 10px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      .nav-pill .primary {
+        background: #071f31;
+        color: #e8f8ff;
+      }
+      .hero {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 10px 24px 34px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 28px;
+        align-items: center;
+      }
+      h1 {
+        margin: 0 0 14px;
+        font-size: clamp(34px, 5vw, 72px);
+        line-height: 0.96;
+        letter-spacing: -0.03em;
+      }
+      .lead {
+        font-size: clamp(16px, 1.6vw, 22px);
+        color: var(--ink-soft);
+        max-width: 760px;
+      }
+      .hero-actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        padding: 13px 20px;
+        border-radius: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .btn.primary {
+        background: var(--cta);
+        color: var(--cta-text);
+      }
+      .orb {
+        width: min(560px, 100%);
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        margin: 0 auto;
+        background:
+          radial-gradient(circle at 50% 45%, rgba(55, 187, 226, 0.78), rgba(7, 88, 128, 0.88) 52%, rgba(5, 55, 87, 0.98) 70%),
+          repeating-radial-gradient(circle at center, transparent 0 19px, rgba(157, 237, 255, 0.16) 19px 20px);
+        box-shadow:
+          0 0 0 14px rgba(203, 255, 255, 0.2),
+          0 0 44px rgba(66, 195, 232, 0.45);
+        position: relative;
+      }
+      .orb::before {
+        content: "";
+        position: absolute;
+        inset: 14% 10%;
+        border-radius: 50%;
+        border: 1px solid rgba(173, 243, 255, 0.45);
+      }
+      .panel {
+        max-width: 1180px;
+        margin: 8px auto 30px;
+        padding: 24px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: 0 20px 38px rgba(8, 52, 81, 0.14);
+      }
+      .panel h2 {
+        margin: 0 0 12px;
+        font-size: clamp(24px, 3.2vw, 42px);
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        margin: 0 0 18px;
+        color: var(--ink-soft);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 12px;
+      }
+      input, textarea, select, .out {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font: inherit;
+        background: rgba(255, 255, 255, 0.82);
+        color: var(--ink);
+      }
+      textarea { min-height: 120px; resize: vertical; }
+      .run {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .status { margin: 12px 0; color: var(--ink-soft); }
+      .danger { color: var(--danger); }
+      .out {
+        min-height: 170px;
+        max-height: 460px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: "IBM Plex Mono", monospace;
+      }
+      .footer {
+        text-align: center;
+        color: rgba(9, 54, 76, 0.78);
+        font-size: 12px;
+        margin: 12px 0 26px;
+      }
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        .orb {
+          width: min(440px, 88vw);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="https://www.opengradient.ai" target="_blank" rel="noopener noreferrer">
+        <img src="/static/og-logo.png" alt="OpenGradient" />
+        <b>IntentGuard</b>
+      </a>
+      <nav class="nav-pill">
+        <a href="#analyzer">Intent Analyzer</a>
+        <a href="/health" target="_blank" rel="noopener noreferrer">Health</a>
+        <a class="primary" href="https://hub.opengradient.ai" target="_blank" rel="noopener noreferrer">Explore Models</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Simulate Your Intent Before You Sign</h1>
+        <p class="lead">
+          IntentGuard predicts risk for wallet actions and explains safer alternatives with OpenGradient-ready AI flow.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#analyzer">Enter Intent Portal</a>
+          <a class="btn" href="https://www.opengradient.ai" target="_blank" rel="noopener noreferrer">OpenGradient</a>
+        </div>
+      </div>
+      <div class="orb" aria-hidden="true"></div>
+    </section>
+
+    <section class="panel" id="analyzer">
+      <h2>Intent Safety Receipt</h2>
+      <p class="sub">Опиши, що хочеш зробити on-chain, і отримай risk score + AI пояснення.</p>
+      <div class="grid">
+        <input id="chain" value="Base Sepolia" placeholder="Chain" />
+        <input id="wallet" placeholder="Wallet address (optional)" />
+      </div>
+      <div class="grid" style="margin-top: 10px;">
+        <textarea id="intent" placeholder="Example: Swap 20% ETH to USDC and add liquidity to a new pool."></textarea>
+        <textarea id="context" placeholder="Optional context: protocol name, token address, timeframe, assumptions."></textarea>
+      </div>
+      <div class="run">
+        <button class="btn primary" id="runBtn">Generate Safety Receipt</button>
+      </div>
+      <div class="status" id="status">Status: idle</div>
+      <div class="out" id="out">Output will appear here...</div>
+    </section>
+
+    <div class="footer">
+      Community-built demo. Not an official OpenGradient website.
+    </div>
+
+    <script>
+      const runBtn = document.getElementById("runBtn");
+      const statusEl = document.getElementById("status");
+      const outEl = document.getElementById("out");
+      const chainEl = document.getElementById("chain");
+      const walletEl = document.getElementById("wallet");
+      const intentEl = document.getElementById("intent");
+      const contextEl = document.getElementById("context");
+
+      function pretty(v) {
+        try { return JSON.stringify(v, null, 2); }
+        catch { return String(v); }
+      }
+
+      async function run() {
+        const intent = intentEl.value.trim();
+        const chain = chainEl.value.trim();
+        const wallet = walletEl.value.trim();
+        const context = contextEl.value.trim();
+
+        if (!intent) {
+          statusEl.innerHTML = '<span class="danger">Status: intent is required</span>';
+          return;
+        }
+
+        runBtn.disabled = true;
+        statusEl.textContent = "Status: analyzing intent...";
+        outEl.textContent = "Running risk engine...";
+
+        try {
+          const r = await fetch("/api/intent/analyze", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({intent, chain, wallet, context}),
+          });
+          const data = await r.json();
+          if (!r.ok) {
+            statusEl.innerHTML = '<span class="danger">Status: failed</span>';
+            outEl.textContent = data.error || data.details || "Unknown error";
+            return;
+          }
+          statusEl.textContent = `Status: success via ${data.provider}`;
+          outEl.textContent = pretty(data.result);
+        } catch (e) {
+          statusEl.innerHTML = '<span class="danger">Status: network error</span>';
+          outEl.textContent = e.message;
+        } finally {
+          runBtn.disabled = false;
+        }
+      }
+
+      runBtn.addEventListener("click", () => run().catch(console.error));
+    </script>
+  </body>
+</html>
