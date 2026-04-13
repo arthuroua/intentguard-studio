@@ -33,7 +33,7 @@
       .topbar {
         max-width: 1180px;
         margin: 0 auto;
-        padding: 22px 24px;
+        padding: 26px 24px 22px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -41,12 +41,26 @@
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 16px;
         text-decoration: none;
         color: var(--ink);
       }
-      .brand img { height: 38px; width: auto; }
-      .brand b { font-size: 26px; letter-spacing: -0.02em; }
+      .brand img {
+        height: 56px;
+        width: auto;
+        border-radius: 8px;
+      }
+      .brand .divider {
+        width: 1px;
+        height: 44px;
+        background: rgba(10, 58, 85, 0.22);
+      }
+      .brand .brand-title {
+        font-size: clamp(30px, 3vw, 44px);
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
       .nav-pill {
         background: rgba(255, 255, 255, 0.78);
         border: 1px solid rgba(255, 255, 255, 0.85);
@@ -229,13 +243,24 @@
         font-size: 12px;
         margin: 12px 0 26px;
       }
+      @media (max-width: 980px) {
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .brand img { height: 48px; }
+        .brand .divider { height: 34px; }
+        .brand .brand-title { font-size: clamp(26px, 7vw, 34px); }
+      }
     </style>
   </head>
   <body>
     <header class="topbar">
       <a class="brand" href="https://www.opengradient.ai" target="_blank" rel="noopener noreferrer">
         <img src="/static/og-logo.png" alt="OpenGradient" />
-        <b>IntentGuard</b>
+        <span class="divider" aria-hidden="true"></span>
+        <span class="brand-title">IntentGuard</span>
       </a>
       <nav class="nav-pill">
         <a href="#analyzer">Intent Analyzer</a>
